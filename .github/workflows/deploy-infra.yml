@@ -7,9 +7,13 @@ on:
       - "Terraform/**"
 
 jobs:
+  
   deploy:
     runs-on: ubuntu-latest
-
+    defaults:
+          run:
+            working-directory: Terraform/
+            shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
