@@ -27,15 +27,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
        
-      - name: Give Premission
-        run: chmod +x create_tfvars.sh
-     
-      - name: Create tfvars file
-        env:
-         PROJECT_ID: ${{ secrets.PROJECT_ID }}
-         REGION: ${{ secrets.REGION }}
-        run: bash create_tfvars.sh
-
       - name: Terraform Init
         run: terraform init
 
