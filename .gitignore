@@ -1,5 +1,4 @@
 .env
 .terraform/
-*.tfvars
 *.tfstate
 konecta-erp.json
