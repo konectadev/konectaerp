@@ -1,6 +1,7 @@
 name: Terraform Deploy to GCP
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths:
@@ -9,6 +10,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+          run:
+            working-directory: Terraform/
+            shell: bash
 
     steps:
       - name: Checkout code
@@ -25,7 +30,6 @@ jobs:
       - name: Give Premission
         run: chmod +x create_tfvars.sh
      
-
       - name: Create tfvars file
         env:
          PROJECT_ID: ${{ secrets.PROJECT_ID }}
