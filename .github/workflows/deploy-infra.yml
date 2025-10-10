@@ -1,20 +1,15 @@
 name: Terraform Deploy to GCP
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
     paths:
-      - "Terraform/**"
+      - "Terraform/"
 
 jobs:
-  
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-          run:
-            working-directory: Terraform/
-            shell: bash
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,10 +21,16 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+       
+      - name: Give Premission
+        run: chmod +x create_tfvars.sh
+     
 
       - name: Create tfvars file
-        run: |
-          echo "${{ secrets.TF_VARS_FILE }}" | tr '\r' '\n' > terraform.tfvars
+        env:
+         PROJECT_ID: ${{ secrets.PROJECT_ID }}
+         REGION: ${{ secrets.REGION }}
+        run: bash create_tfvars.sh
 
       - name: Terraform Init
         run: terraform init
