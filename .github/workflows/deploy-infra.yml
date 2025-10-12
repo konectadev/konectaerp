@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - "Terraform/"
+      - "Terraform/**"
 
 jobs:
   deploy:
