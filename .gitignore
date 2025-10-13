@@ -1,4 +1,54 @@
 .env
+.env.local
 .terraform/
 *.tfstate
+*.tfstate.backup
+crash.log
+
+# VS/IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# .NET
+**/bin/
+**/obj/
+*.log
+
+# Java/Maven
+**/target/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Docker
+docker-compose.override.yml
+**/.env
+
+# Ignore secret config files that may contain connection strings / passwords
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Secrets.json
+**/appsettings.json
+
+# Logs
+logs/
+*.log
+
+# Other
 konecta-erp.json

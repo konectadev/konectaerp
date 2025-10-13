@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\UserManagementService\\UserManagementService.csproj": {}
+    "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\UserManagementService\\UserManagementService.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\UserManagementService\\UserManagementService.csproj": {
+    "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\UserManagementService\\UserManagementService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\UserManagementService\\UserManagementService.csproj",
+        "projectUniqueName": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\UserManagementService\\UserManagementService.csproj",
         "projectName": "UserManagementService",
-        "projectPath": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\UserManagementService\\UserManagementService.csproj",
-        "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\UserManagementService\\obj\\",
+        "projectPath": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\UserManagementService\\UserManagementService.csproj",
+        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\UserManagementService\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"

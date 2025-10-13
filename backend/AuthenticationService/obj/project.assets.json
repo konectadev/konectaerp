@@ -3183,19 +3183,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Lenovo\\.nuget\\packages\\": {}
+    "C:\\Users\\ahmed\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\AuthenticationService\\AuthenticationService.csproj",
+      "projectUniqueName": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\AuthenticationService\\AuthenticationService.csproj",
       "projectName": "AuthenticationService",
-      "projectPath": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\AuthenticationService\\AuthenticationService.csproj",
-      "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Lenovo\\OneDrive\\Desktop\\konecta erp\\konectaerp\\AuthenticationService\\obj\\",
+      "projectPath": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\AuthenticationService\\AuthenticationService.csproj",
+      "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ahmed\\OneDrive - Faculty of Engineering Ain Shams University\\Ahmed's Files\\Desktop\\CESS\\Other\\Konecta GP\\Code\\konectaerp\\backend\\AuthenticationService\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"

@@ -119,32 +119,73 @@ var consulClient = app.Services.GetRequiredService<IConsulClient>();
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 var serviceName = "user-management-service";
 var serviceId = $"{serviceName}-{Guid.NewGuid()}";
+var consulEnabled = builder.Configuration.GetValue<bool>("Consul:Enabled");
 
-lifetime.ApplicationStarted.Register(() =>
+if (consulEnabled)
 {
-    var registration = new AgentServiceRegistration
+    lifetime.ApplicationStarted.Register(() =>
     {
-        ID = serviceId,
-        Name = serviceName,
-        Address = builder.Configuration["ServiceConfig:Host"] ?? "localhost",
-        Port = int.Parse(builder.Configuration["ServiceConfig:Port"] ?? "5002"),
-        Check = new AgentServiceCheck
+        // Run registration in background and do not block app startup.
+        _ = Task.Run(async () =>
         {
-            HTTP = $"http://{builder.Configuration["ServiceConfig:Host"] ?? "localhost"}:{builder.Configuration["ServiceConfig:Port"] ?? "5002"}/health",
-            Interval = TimeSpan.FromSeconds(10),
-            Timeout = TimeSpan.FromSeconds(5)
-        }
-    };
-    
-    consulClient.Agent.ServiceRegister(registration).Wait();
-});
+            var services = app.Services;
+            var logger = services.GetService<ILogger<Program>>();
+            try
+            {
+                var registration = new AgentServiceRegistration
+                {
+                    ID = serviceId,
+                    Name = serviceName,
+                    Address = builder.Configuration["ServiceConfig:Host"] ?? "localhost",
+                    Port = int.Parse(builder.Configuration["ServiceConfig:Port"] ?? "5002"),
+                    Check = new AgentServiceCheck
+                    {
+                        HTTP = $"http://{builder.Configuration["ServiceConfig:Host"] ?? "localhost"}:{builder.Configuration["ServiceConfig:Port"] ?? "5002"}/health",
+                        Interval = TimeSpan.FromSeconds(10),
+                        Timeout = TimeSpan.FromSeconds(5)
+                    }
+                };
 
-lifetime.ApplicationStopping.Register(() =>
-{
-    consulClient.Agent.ServiceDeregister(serviceId).Wait();
-});
+                await consulClient.Agent.ServiceRegister(registration);
+                logger?.LogInformation("Service registered with Consul: {ServiceId}", serviceId);
+            }
+            catch (Exception ex)
+            {
+                // If Consul is not available, log and continue running the application.
+                var logger2 = services.GetService<ILogger<Program>>();
+                logger2?.LogWarning(ex, "Could not register service with Consul at {ConsulHost}. Continuing without Consul.", builder.Configuration["Consul:Host"] ?? "http://localhost:8500");
+            }
+        });
+    });
+
+    lifetime.ApplicationStopping.Register(() =>
+    {
+        _ = Task.Run(async () =>
+        {
+            var services = app.Services;
+            var logger = services.GetService<ILogger<Program>>();
+            try
+            {
+                await consulClient.Agent.ServiceDeregister(serviceId);
+                logger?.LogInformation("Service deregistered from Consul: {ServiceId}", serviceId);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogWarning(ex, "Failed to deregister service from Consul: {ServiceId}", serviceId);
+            }
+        });
+    });
+}
 
 // Health Check Endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = serviceName }));
+
+// Apply migrations and seed data at startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    db.Database.Migrate();
+    SeedData.Initialize(db);
+}
 
 app.Run();
