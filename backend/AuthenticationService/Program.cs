@@ -115,37 +115,68 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Register with Consul
-var consulClient = app.Services.GetRequiredService<IConsulClient>();
-var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-var serviceName = "authentication-service";
-var serviceId = $"{serviceName}-{Guid.NewGuid()}";
-
-lifetime.ApplicationStarted.Register(() =>
+// Register with Consul (optional - only if Consul is available)
+var consulEnabled = builder.Configuration.GetValue<bool>("Consul:Enabled", false);
+if (consulEnabled)
 {
-    var registration = new AgentServiceRegistration
+    try
     {
-        ID = serviceId,
-        Name = serviceName,
-        Address = builder.Configuration["ServiceConfig:Host"] ?? "localhost",
-        Port = int.Parse(builder.Configuration["ServiceConfig:Port"] ?? "5001"),
-        Check = new AgentServiceCheck
-        {
-            HTTP = $"http://{builder.Configuration["ServiceConfig:Host"] ?? "localhost"}:{builder.Configuration["ServiceConfig:Port"] ?? "5001"}/health",
-            Interval = TimeSpan.FromSeconds(10),
-            Timeout = TimeSpan.FromSeconds(5)
-        }
-    };
-    
-    consulClient.Agent.ServiceRegister(registration).Wait();
-});
+        var consulClient = app.Services.GetRequiredService<IConsulClient>();
+        var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+        var serviceName = "authentication-service";
+        var serviceId = $"{serviceName}-{Guid.NewGuid()}";
 
-lifetime.ApplicationStopping.Register(() =>
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            try
+            {
+                var registration = new AgentServiceRegistration
+                {
+                    ID = serviceId,
+                    Name = serviceName,
+                    Address = builder.Configuration["ServiceConfig:Host"] ?? "localhost",
+                    Port = int.Parse(builder.Configuration["ServiceConfig:Port"] ?? "5001"),
+                    Check = new AgentServiceCheck
+                    {
+                        HTTP = $"http://{builder.Configuration["ServiceConfig:Host"] ?? "localhost"}:{builder.Configuration["ServiceConfig:Port"] ?? "5001"}/health",
+                        Interval = TimeSpan.FromSeconds(10),
+                        Timeout = TimeSpan.FromSeconds(5)
+                    }
+                };
+                
+                consulClient.Agent.ServiceRegister(registration).Wait();
+                Console.WriteLine($"Service registered with Consul: {serviceId}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to register with Consul: {ex.Message}");
+            }
+        });
+
+        lifetime.ApplicationStopping.Register(() =>
+        {
+            try
+            {
+                consulClient.Agent.ServiceDeregister(serviceId).Wait();
+                Console.WriteLine($"Service deregistered from Consul: {serviceId}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to deregister from Consul: {ex.Message}");
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Consul registration failed: {ex.Message}");
+    }
+}
+else
 {
-    consulClient.Agent.ServiceDeregister(serviceId).Wait();
-});
+    Console.WriteLine("Consul registration disabled");
+}
 
 // Health Check Endpoint
-app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = serviceName }));
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "authentication-service" }));
 
 app.Run();
