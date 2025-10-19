@@ -8,6 +8,13 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface LoginResponse {
   token: string;
   user: {
@@ -31,7 +38,7 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_BASE = 'http://localhost:5002/api'; // UserManagementService
+  private readonly API_BASE = 'http://localhost:5001/api'; // AuthenticationService
   private readonly TOKEN_KEY = 'auth_token';
   
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -53,6 +60,16 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_BASE}/auth/login`, credentials)
+      .pipe(
+        tap(response => {
+          this.setToken(response.token);
+          this.currentUserSubject.next(response.user);
+        })
+      );
+  }
+
+  register(userData: RegisterRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_BASE}/auth/register`, userData)
       .pipe(
         tap(response => {
           this.setToken(response.token);
