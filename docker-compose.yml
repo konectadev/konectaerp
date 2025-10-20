@@ -35,8 +35,8 @@ services:
       - JwtSettings__Issuer=KonectaERP
       - JwtSettings__Audience=KonectaERPUsers
       - JwtSettings__ExpirationMinutes=60
-      - Consul__Enabled=false
-      # - RUN_MIGRATIONS=true
+      - Consul__Enabled=true
+      - RUN_MIGRATIONS=true
     ports:
       - "5001:5001"
     depends_on:

@@ -24,10 +24,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 # Align with service config defaults (ServiceConfig:Port defaults to 5001)
-# ENV ASPNETCORE_URLS=http://+:5001
-# ENV DOTNET_RUNNING_IN_CONTAINER=true
-# ENV ASPNETCORE_ENVIRONMENT=Production
-# ENV RUN_MIGRATIONS=false
+ENV ASPNETCORE_URLS=http://+:5001
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV RUN_MIGRATIONS=true
 
 # Copy published app
 COPY --from=publish /app/publish .

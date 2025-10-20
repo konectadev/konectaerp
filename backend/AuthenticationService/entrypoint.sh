@@ -27,4 +27,4 @@ fi
 
 # Start the application
 echo "Starting the application..."
-exec dotnet app/AuthenticationService.dll
+exec dotnet AuthenticationService.dll
