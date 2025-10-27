@@ -9,18 +9,73 @@ on:
     paths: [ 'frontend/**' ]
 
 jobs:
-  build-and-test:
+  build-test-deploy:
+    name: Build, Test, and Push Frontend Image to GCP
     runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: ${{ secrets.GCP_REGION }}
+      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+      IMAGE_TAG: ${{ github.sha }}
+      SERVICE_KEY: ${{ secrets.GCP_SA_KEY }}
+
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js for build and test
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install Dependencies and Build
+      # 3️⃣ Install dependencies and run tests/build
+      - name: Install dependencies and run build/test
         run: |
-          cd src/frontend
+          cd frontend
           npm ci
           npm run build
-          npm run test:ci # Run tests in CI mode
+          npm run test:ci
+
+      # 4️⃣ Setup Google Cloud SDK
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ env.SERVICE_KEY }}
+          export_default_credentials: true
+
+      # 5️⃣ Configure Docker to use GCP credentials
+      - name: Configure Docker authentication
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # 6️⃣ Build Docker image
+      - name: Build Docker image
+        run: |
+          cd frontend
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+
+      # 7️⃣ Push Docker image to Artifact Registry
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      # 8️⃣ (Optional) Tag "latest" image
+      - name: Tag and push latest image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+                     ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to Cloud Run (Private)
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: internal-frontend
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          region: ${{ env.REGION }}
+          allow-unauthenticated: false  # ❌ No public access
+          ingress: internal-and-cloud-load-balancing  # Internal only

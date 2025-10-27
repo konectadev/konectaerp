@@ -66,6 +66,25 @@ echo "Testing database setup..."
 podman exec konecta-postgres-custom psql -U postgres -d konecta_erp -c "SELECT COUNT(*) as user_count FROM users;" || echo "Database not ready yet, waiting..."
 sleep 5
 
+# Build and start Frontend
+log "Building Frontend..."
+if [ -d "frontend" ] && [ -f "frontend/Dockerfile" ]; then
+    cd frontend
+    podman build -t frontend . || warn "Failed to build frontend"
+    
+    log "Starting Frontend..."
+    podman run -d \
+      --name konecta-frontend \
+      --network konecta-network \
+      -e NODE_ENV=production \
+      -p 4200:80 \
+      frontend || warn "Failed to start frontend"
+    
+    cd ..
+else
+    warn "Frontend directory or Dockerfile not found. Skipping frontend."
+fi
+
 # Build and start Authentication Service
 log "Building Authentication Service..."
 if [ -d "backend/AuthenticationService" ]; then
@@ -93,24 +112,7 @@ else
     warn "AuthenticationService directory not found. Skipping."
 fi
 
-# Build and start Frontend
-log "Building Frontend..."
-if [ -d "frontend" ] && [ -f "frontend/Dockerfile" ]; then
-    cd frontend
-    podman build -t frontend . || warn "Failed to build frontend"
-    
-    log "Starting Frontend..."
-    podman run -d \
-      --name konecta-frontend \
-      --network konecta-network \
-      -e NODE_ENV=production \
-      -p 4200:80 \
-      frontend || warn "Failed to start frontend"
-    
-    cd ..
-else
-    warn "Frontend directory or Dockerfile not found. Skipping frontend."
-fi
+
 
 # Health checks
 log "Performing health checks..."
