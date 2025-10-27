@@ -3,7 +3,7 @@
     <div class="welcome-content">
       <h1>Welcome{{ currentUser ? ', ' + currentUser.firstName : '' }}!</h1>
       <p class="welcome-message">
-        Role-based access: <strong>{{ currentUser?.roles.join(', ') }}</strong>
+        Role-based access: <strong>{{ currentUser?.roles}}</strong>
       </p>
       <div class="role-indicators" *ngIf="currentUser && currentUser.roles.length > 0">
         <span *ngFor="let role of currentUser.roles" class="role-indicator" [class]="'role-' + role.toLowerCase()">

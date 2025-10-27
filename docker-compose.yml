@@ -1,7 +1,9 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:15-alpine
+    build:
+      context: ./database
+      dockerfile: Dockerfile
     container_name: konecta-postgres
     environment:
       POSTGRES_DB: konecta_erp

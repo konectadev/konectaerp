@@ -29,8 +29,8 @@ error() {
 # Cleanup function
 cleanup() {
     log "Cleaning up..."
-    podman stop konecta-postgres-custom konecta-auth-service konecta-frontend 2>/dev/null || true
-    podman rm konecta-postgres-custom konecta-auth-service konecta-frontend 2>/dev/null || true
+    podman stop konecta-postgres konecta-auth-service konecta-frontend 2>/dev/null || true
+    podman rm konecta-postgres konecta-auth-service konecta-frontend 2>/dev/null || true
 }
 
 # Trap Ctrl+C
@@ -63,7 +63,7 @@ sleep 10
 
 # Test database setup
 echo "Testing database setup..."
-podman exec konecta-postgres-custom psql -U postgres -d konecta_erp -c "SELECT COUNT(*) as user_count FROM users;" || echo "Database not ready yet, waiting..."
+podman exec konecta-postgres psql -U postgres -d konecta_erp -c "SELECT COUNT(*) as user_count FROM users;" || echo "Database not ready yet, waiting..."
 sleep 5
 
 # Build and start Frontend
@@ -119,7 +119,7 @@ log "Performing health checks..."
 sleep 10
 
 log "Checking services..."
-echo "PostgreSQL: $(podman inspect --format='{{.State.Status}}' konecta-postgres-custom)"
+echo "PostgreSQL: $(podman inspect --format='{{.State.Status}}' konecta-postgres)"
 echo "Auth Service: $(podman inspect --format='{{.State.Status}}' konecta-auth-service)"
 if podman ps --format "table {{.Names}}\t{{.Status}}" | grep -q konecta-frontend; then
     echo "Frontend: $(podman inspect --format='{{.State.Status}}' konecta-frontend)"
@@ -136,6 +136,6 @@ echo ""
 echo "Management Commands:"
 echo "  View all containers: podman ps"
 echo "  View logs:          podman logs <container-name>"
-echo "  Stop services:      podman stop konecta-postgres-custom konecta-auth-service konecta-frontend"
-echo "  Remove services:    podman rm konecta-postgres-custom konecta-auth-service konecta-frontend"
+echo "  Stop services:      podman stop konecta-postgres konecta-auth-service konecta-frontend"
+echo "  Remove services:    podman rm konecta-postgres konecta-auth-service konecta-frontend"
 echo ""

@@ -102,6 +102,26 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Ensure database is created
+var runMigrations = builder.Configuration.GetValue<bool>("RUN_MIGRATIONS", false);
+if (runMigrations)
+{
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+            context.Database.EnsureCreated();
+            Console.WriteLine("Database tables created successfully");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to create database: {ex.Message}");
+        // Don't fail the application startup if DB creation fails
+    }
+}
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {

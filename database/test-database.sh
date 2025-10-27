@@ -17,22 +17,14 @@ SELECT
     is_nullable,
     column_default
 FROM information_schema.columns 
-WHERE table_name = 'users' 
+WHERE table_name = 'Users' 
 ORDER BY ordinal_position;"
 
 # Check if admin user exists
 echo ""
 echo "3. Checking admin user..."
-podman exec konecta-postgres psql -U postgres -d konecta_erp -c "
-SELECT 
-    username,
-    email,
-    role,
-    is_active,
-    is_verified,
-    created_at
-FROM users 
-WHERE username = 'admin';"
+podman exec konecta-postgres psql -U postgres -d konecta_erp -c 'SELECT * FROM "Users" ;'
+
 
 # Count tables
 echo ""
@@ -49,5 +41,5 @@ echo "5. Database size and info..."
 podman exec konecta-postgres psql -U postgres -d konecta_erp -c "
 SELECT 
     pg_size_pretty(pg_database_size('konecta_erp')) as db_size,
-    (SELECT COUNT(*) FROM users) as user_count,
+    (SELECT COUNT(*) FROM Users) as user_count,
     (SELECT COUNT(*) FROM refresh_tokens) as token_count;"
