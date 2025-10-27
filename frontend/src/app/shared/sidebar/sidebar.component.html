@@ -1,1 +1,28 @@
-<p>sidebar works!</p>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>Menu</h2>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <a 
+      *ngFor="let item of filteredMenuItems" 
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      class="nav-item">
+      <span class="nav-icon">{{ item.icon }}</span>
+      <span class="nav-label">{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer" *ngIf="currentUser">
+    <div class="user-badge">
+      <div class="user-avatar">{{ currentUser.firstName.charAt(0) }}{{ currentUser.lastName.charAt(0) }}</div>
+      <div class="user-details">
+        <div class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
+        <div class="user-roles">
+          <span *ngFor="let role of currentUser.roles" class="role-badge">{{ role }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>

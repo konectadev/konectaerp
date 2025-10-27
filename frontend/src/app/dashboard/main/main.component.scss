@@ -1,13 +1,14 @@
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .welcome-section {
-  text-align: center;
   margin-bottom: 3rem;
   padding: 2rem 0;
+}
 
+.welcome-content {
   h1 {
     color: #333;
     font-size: 2.5rem;
@@ -17,14 +18,84 @@
 
   .welcome-message {
     color: #666;
-    font-size: 1.2rem;
-    margin: 0;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .role-indicators {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .role-indicator {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    
+    &.role-admin {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    
+    &.role-manager {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    
+    &.role-employee {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+  }
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    font-size: 2.5rem;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
   }
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
 
@@ -35,23 +106,63 @@
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
-  h3 {
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 600;
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 1rem;
+
+    .card-icon {
+      font-size: 2.5rem;
+    }
+
+    h3 {
+      color: #333;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
   }
 
-  p {
+  .card-description {
     color: #666;
     line-height: 1.6;
     margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9ff;
+    border-radius: 8px;
+  }
+
+  .stat-item {
+    text-align: center;
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #666;
+    }
   }
 
   .card-link {
@@ -63,6 +174,8 @@
     border-radius: 8px;
     font-weight: 500;
     transition: transform 0.2s ease;
+    text-align: center;
+    margin-top: auto;
 
     &:hover {
       transform: translateY(-2px);
@@ -70,21 +183,14 @@
   }
 }
 
-.user-info {
-  background: #f8f9ff;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-
-  p {
-    margin: 0.5rem 0;
-    font-size: 0.9rem;
-  }
-}
-
 @media (max-width: 768px) {
-  .welcome-section h1 {
+  .welcome-content h1 {
     font-size: 2rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 
   .dashboard-grid {
@@ -94,5 +200,28 @@
 
   .dashboard-card {
     padding: 1.5rem;
+  }
+
+  .dashboard-card .card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-card .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.5rem;
   }
 }

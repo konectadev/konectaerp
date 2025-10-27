@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -14,7 +15,8 @@ export const routes: Routes = [
   {
     path: 'hr',
     loadChildren: () => import('./hr/hr-routing.module').then(m => m.HrRoutingModule),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin', 'Manager'] }
   },
   {
     path: 'finance',
@@ -24,6 +26,23 @@ export const routes: Routes = [
   {
     path: 'inventory',
     loadChildren: () => import('./inventory/inventory-routing.module').then(m => m.InventoryRoutingModule),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./shared/components/reports-overview.component').then(m => m.ReportsOverviewComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin', 'Manager'] }
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./shared/components/settings-overview.component').then(m => m.SettingsOverviewComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin'] }
+  },
+  {
+    path: 'tasks',
+    loadComponent: () => import('./shared/components/tasks-overview.component').then(m => m.TasksOverviewComponent),
     canActivate: [authGuard]
   },
   {

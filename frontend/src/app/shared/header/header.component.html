@@ -3,20 +3,15 @@
     <div class="logo">
       <h1>Konecta ERP</h1>
     </div>
-    
-    <nav class="main-nav">
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/hr" routerLinkActive="active">HR</a>
-      <a routerLink="/finance" routerLinkActive="active">Finance</a>
-      <a routerLink="/inventory" routerLinkActive="active">Inventory</a>
-    </nav>
 
     <div class="user-menu" *ngIf="currentUser">
       <div class="user-info">
         <span class="user-name">{{ userDisplayName }}</span>
-        <span class="user-role" *ngIf="currentUser.roles.length > 0">
-          {{ currentUser.roles[0] }}
-        </span>
+        <div class="user-role-badges">
+          <span *ngFor="let role of currentUser.roles" class="user-role">
+            {{ role }}
+          </span>
+        </div>
       </div>
       <button class="logout-btn" (click)="logout()">
         Logout

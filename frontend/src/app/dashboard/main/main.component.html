@@ -1,37 +1,65 @@
 <div class="dashboard-container">
   <div class="welcome-section">
-    <h1>Welcome to Konecta ERP</h1>
-    <p *ngIf="currentUser" class="welcome-message">
-      Hello, {{ currentUser.firstName }} {{ currentUser.lastName }}!
-    </p>
+    <div class="welcome-content">
+      <h1>Welcome{{ currentUser ? ', ' + currentUser.firstName : '' }}!</h1>
+      <p class="welcome-message">
+        Role-based access: <strong>{{ currentUser?.roles.join(', ') }}</strong>
+      </p>
+      <div class="role-indicators" *ngIf="currentUser && currentUser.roles.length > 0">
+        <span *ngFor="let role of currentUser.roles" class="role-indicator" [class]="'role-' + role.toLowerCase()">
+          {{ role }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-stats" *ngIf="currentUser && (hasRole('Admin') || hasRole('Manager'))">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <div class="stat-value">--</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div class="stat-content">
+        <div class="stat-value">$--</div>
+        <div class="stat-label">Revenue (This Month)</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-content">
+        <div class="stat-value">--</div>
+        <div class="stat-label">Active Orders</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <div class="stat-value">--</div>
+        <div class="stat-label">Employees</div>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <h3>HR Management</h3>
-      <p>Manage employees, roles, and organizational structure</p>
-      <a routerLink="/hr" class="card-link">Go to HR</a>
-    </div>
-
-    <div class="dashboard-card">
-      <h3>Finance</h3>
-      <p>Track expenses, budgets, and financial reports</p>
-      <a routerLink="/finance" class="card-link">Go to Finance</a>
-    </div>
-
-    <div class="dashboard-card">
-      <h3>Inventory</h3>
-      <p>Manage products, stock levels, and suppliers</p>
-      <a routerLink="/inventory" class="card-link">Go to Inventory</a>
-    </div>
-
-    <div class="dashboard-card">
-      <h3>User Management</h3>
-      <p>Manage user accounts and permissions</p>
-      <div class="user-info" *ngIf="currentUser">
-        <p><strong>Email:</strong> {{ currentUser.email }}</p>
-        <p><strong>Roles:</strong> {{ currentUser.roles.join(', ') }}</p>
+    <div *ngFor="let card of filteredCards" class="dashboard-card">
+      <div class="card-header">
+        <span class="card-icon">{{ card.icon }}</span>
+        <h3>{{ card.title }}</h3>
       </div>
+      <p class="card-description">{{ card.description }}</p>
+      <div class="card-stats" *ngIf="card.stats && card.stats.length > 0">
+        <div *ngFor="let stat of card.stats" class="stat-item">
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      </div>
+      <a [routerLink]="card.route" class="card-link">
+        Open Module →
+      </a>
     </div>
   </div>
 </div>
