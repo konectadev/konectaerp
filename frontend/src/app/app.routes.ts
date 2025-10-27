@@ -41,6 +41,12 @@ export const routes: Routes = [
     data: { roles: ['Admin'] }
   },
   {
+    path: 'users',
+    loadComponent: () => import('./shared/components/user-management.component').then(m => m.UserManagementComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin'] }
+  },
+  {
     path: 'tasks',
     loadComponent: () => import('./shared/components/tasks-overview.component').then(m => m.TasksOverviewComponent),
     canActivate: [authGuard]

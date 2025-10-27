@@ -22,8 +22,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [
     { label: 'Dashboard', icon: '📊', route: '/dashboard', roles: ['Admin', 'Manager', 'Employee'] },
     { label: 'HR Management', icon: '👥', route: '/hr', roles: ['Admin', 'Manager'] },
+    { label: 'User Management', icon: '👤', route: '/users', roles: ['Admin'] },
     { label: 'Finance', icon: '💰', route: '/finance', roles: ['Admin', 'Manager', 'Employee'] },
     { label: 'Inventory', icon: '📦', route: '/inventory', roles: ['Admin', 'Manager', 'Employee'] },
+    { label: 'Tasks', icon: '✔️', route: '/tasks', roles: ['Admin', 'Manager', 'Employee'] },
     { label: 'Reports', icon: '📈', route: '/reports', roles: ['Admin', 'Manager'] },
     { label: 'Settings', icon: '⚙️', route: '/settings', roles: ['Admin'] }
   ];
