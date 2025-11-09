@@ -1,0 +1,44 @@
+# Deploy Inventory Service to GCP Cloud Run
+name: Deploy Inventory Service
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: 
+      - 'konecta_erp/backend/InventoryService/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-east1-docker.pkg.dev
+      
+      - name: Build Docker Image
+        run: |
+          cd konecta_erp
+          docker build -f backend/InventoryService/Dockerfile -t ${{secrets.REPO_URL}}inventory-service:${{github.sha}} .
+      
+      - name: Push Image
+        run: docker push ${{secrets.REPO_URL}}inventory-service:${{github.sha}}
+      
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy inventory-service \
+            --image=${{secrets.REPO_URL}}inventory-service:${{github.sha}} \
+            --region=us-east1
+

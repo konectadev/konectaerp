@@ -1,0 +1,133 @@
+# Deploy Authentication Service to GCP Cloud Run
+name: Deploy Authentication Service
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: 
+      - 'konecta_erp/backend/AuthenticationService/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-east1-docker.pkg.dev
+      
+      - name: Build Docker Image
+        run: |
+          cd konecta_erp
+          docker build -f backend/AuthenticationService/Dockerfile -t ${{secrets.REPO_URL}}authentication-service:${{github.sha}} .
+      
+      - name: Push Image
+        run: docker push ${{secrets.REPO_URL}}authentication-service:${{github.sha}}
+      
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy authentication-service \
+            --image=${{secrets.REPO_URL}}authentication-service:${{github.sha}} \
+            --region=us-east1
+
+  # build-container:
+  #   name: Build Container
+  #   runs-on: ubuntu-latest
+  #   needs: [test, security-scan]
+  #   if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
+
+  #   - name: Log in to Container Registry
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ${{ env.CONTAINER_REGISTRY }}
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+
+  #   - name: Extract metadata
+  #     id: meta
+  #     uses: docker/metadata-action@v5
+  #     with:
+  #       images: ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}
+  #       tags: |
+  #         type=ref,event=branch
+  #         type=ref,event=pr
+  #         type=semver,pattern={{version}}
+  #         type=semver,pattern={{major}}.{{minor}}
+  #         type=sha,prefix={{branch}}-
+
+  #   - name: Build and push container
+  #     uses: docker/build-push-action@v5
+  #     with:
+  #       context: ./backend/${{ matrix.service }}
+  #       file: ./backend/${{ matrix.service }}/Dockerfile
+  #       push: true
+  #       tags: ${{ steps.meta.outputs.tags }}
+  #       labels: ${{ steps.meta.outputs.labels }}
+  #       cache-from: type=gha
+  #       cache-to: type=gha,mode=max
+
+  # deploy-staging:
+  #   name: Deploy to Staging
+  #   runs-on: ubuntu-latest
+  #   needs: build-container
+  #   if: github.ref == 'refs/heads/develop'
+    
+  #   environment: staging
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Deploy to staging
+  #     run: |
+  #       echo "Deploying to staging environment"
+  #       gcloud run deploy ${{ matrix.service }} --image ${{ matrix.service }} --region us-central1
+  #       gcloud run services update-traffic ${{ matrix.service }} --to-latest
+  #     env:
+  #       DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+
+  # deploy-production:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: build-container
+  #   if: github.ref == 'refs/heads/main'
+    
+  #   environment: production
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Deploy to production
+  #     run: |
+  #       echo "Deploying to production environment"
+  #       gcloud run deploy ${{ matrix.service }} --image ${{ matrix.service }} --region us-central1
+  #       gcloud run services update-traffic ${{ matrix.service }} --to-latest
+  #     env:
+  #       DEPLOY_KEY: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
+
+  # cleanup:
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   steps:
+  #     - name: Cleanup ${{ matrix.service }}
+  #       run: |
+  #         docker stop ${{ matrix.service }}
+  #         docker rm ${{ matrix.service }}
