@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths: 
       - 'konecta_erp/backend/AuthenticationService/**'
+      - '.github/workflows/deploy-authentication-service.yml'
 
 jobs:
   deploy:

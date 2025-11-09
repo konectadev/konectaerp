@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths: 
       - 'konecta_erp/backend/HrService/**'
+      - '.github/workflows/deploy-hr-service.yml'
 
 jobs:
   deploy:

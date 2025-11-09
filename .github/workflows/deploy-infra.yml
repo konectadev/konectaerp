@@ -6,7 +6,7 @@ on:
     branches: [ main ]
     paths:
       - "Terraform/**"
-
+      - '.github/workflows/deploy-infra.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest

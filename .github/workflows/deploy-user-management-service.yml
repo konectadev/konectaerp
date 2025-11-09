@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths: 
       - 'konecta_erp/backend/UserManagementService/**'
-
+      - '.github/workflows/deploy-user-management-service.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest

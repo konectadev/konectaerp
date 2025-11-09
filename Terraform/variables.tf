@@ -31,7 +31,7 @@ variable "max_instances" {
 variable "service_account_email" {
   description = "Service account email for Cloud Run"
   type        = string
-  default     = "terraform@konecta-task-467513.iam.gserviceaccount.com"
+  default     = "terraform-account@konecta-task-467513.iam.gserviceaccount.com"
 }
 
 variable "vpc_connector" {

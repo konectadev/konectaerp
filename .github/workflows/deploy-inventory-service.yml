@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths: 
       - 'konecta_erp/backend/InventoryService/**'
-
+      - '.github/workflows/deploy-inventory-service.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest

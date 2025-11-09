@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths: 
       - 'konecta_erp/backend/ReportingService/**'
-
+      - '.github/workflows/deploy-reporting-service.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest
