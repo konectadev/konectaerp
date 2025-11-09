@@ -33,10 +33,10 @@ locals {
         SERVICE_NAME           = "authentication-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/auth-sql-connection:latest"
-        JWT_SECRET           = "projects/${var.project_id}/secrets/jwt-secret:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/auth-sql-connection:latest"
+      #   JWT_SECRET           = "projects/${var.project_id}/secrets/jwt-secret:latest"
+      # }
     }
 
     "user-management-service" = {
@@ -49,9 +49,9 @@ locals {
         SERVICE_NAME           = "user-management-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/user-mgmt-sql-connection:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/user-mgmt-sql-connection:latest"
+      # }
     }
 
     "hr-service" = {
@@ -64,9 +64,9 @@ locals {
         SERVICE_NAME           = "hr-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/hr-sql-connection:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/hr-sql-connection:latest"
+      # }
     }
 
     "finance-service" = {
@@ -79,9 +79,9 @@ locals {
         SERVICE_NAME           = "finance-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/finance-sql-connection:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/finance-sql-connection:latest"
+      # }
     }
 
     "inventory-service" = {
@@ -94,9 +94,9 @@ locals {
         SERVICE_NAME           = "inventory-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/inventory-sql-connection:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/inventory-sql-connection:latest"
+      # }
     }
 
     "reporting-service" = {
@@ -109,9 +109,9 @@ locals {
         SERVICE_NAME           = "reporting-service"
         CONSUL_HOST            = var.consul_host
       }
-      secrets = {
-        SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/reporting-sql-connection:latest"
-      }
+      # secrets = {
+      #   SQL_CONNECTION_STRING = "projects/${var.project_id}/secrets/reporting-sql-connection:latest"
+      # }
     }
   }
 }
@@ -138,53 +138,53 @@ module "cloud_run_services" {
 }
 
 # Cloud SQL Instance (if needed)
-resource "google_sql_database_instance" "sql_server" {
-  name             = "erp-sqlserver"
-  database_version = "SQLSERVER_2019_STANDARD"
-  region           = var.region
+# resource "google_sql_database_instance" "sql_server" {
+#   name             = "erp-sqlserver"
+#   database_version = "SQLSERVER_2019_STANDARD"
+#   region           = var.region
 
-  settings {
-    tier = "db-custom-2-4096"
+#   settings {
+#     tier = "db-custom-2-4096"
     
-    ip_configuration {
-      ipv4_enabled = false
-      private_network = var.vpc_network
-    }
-  }
+#     ip_configuration {
+#       ipv4_enabled = false
+#       private_network = var.vpc_network
+#     }
+#   }
 
-  deletion_protection = false
-}
+#   deletion_protection = false
+# }
 
-# Create databases for each service
-resource "google_sql_database" "service_databases" {
-  for_each = toset([
-    "AuthenticationDB",
-    "UserManagementDB", 
-    "HRDB",
-    "FinanceDB",
-    "InventoryDB",
-    "ReportingDB"
-  ])
+# # Create databases for each service
+# resource "google_sql_database" "service_databases" {
+#   for_each = toset([
+#     "AuthenticationDB",
+#     "UserManagementDB", 
+#     "HRDB",
+#     "FinanceDB",
+#     "InventoryDB",
+#     "ReportingDB"
+#   ])
 
-  name     = each.key
-  instance = google_sql_database_instance.sql_server.name
-}
+#   name     = each.key
+#   instance = google_sql_database_instance.sql_server.name
+# }
 
-# Service account for Cloud Run services
-resource "google_service_account" "cloud_run_sa" {
-  account_id   = "cloud-run-services"
-  display_name = "Cloud Run Services Service Account"
-}
+# # Service account for Cloud Run services
+# resource "google_service_account" "cloud_run_sa" {
+#   account_id   = "cloud-run-services"
+#   display_name = "Cloud Run Services Service Account"
+# }
 
-# IAM roles for the service account
-resource "google_project_iam_member" "cloud_run_invoker" {
-  for_each = toset([
-    "roles/run.invoker",
-    "roles/secretmanager.secretAccessor",
-    "roles/cloudsql.client"
-  ])
+# # IAM roles for the service account
+# resource "google_project_iam_member" "cloud_run_invoker" {
+#   for_each = toset([
+#     "roles/run.invoker",
+#     "roles/secretmanager.secretAccessor",
+#     "roles/cloudsql.client"
+#   ])
 
-  project = var.project_id
-  role    = each.key
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
-}
+#   project = var.project_id
+#   role    = each.key
+#   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+# }
