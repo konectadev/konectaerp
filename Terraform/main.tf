@@ -117,7 +117,7 @@ locals {
 }
 
 # Deploy all services using the module
-resource "module" "cloud_run_services" {
+module "cloud_run_services" {
   for_each = local.services
 
   source = "./modules/cloud_run"

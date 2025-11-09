@@ -1,11 +1,10 @@
 terraform {
-  required_providers {
+   required_providers {
     google = {
-      source  = "hashicorp/google"
-      version = "7.1.1"
+      source = "hashicorp/google"
+      version = "7.10.0"
     }
   }
-
   backend "gcs" {
     bucket      = "konecta-erp"
     prefix      = "dev"
