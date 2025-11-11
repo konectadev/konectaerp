@@ -1,4 +1,4 @@
-name: Terraform Deploy to GCP
+name: Deploy Shared Services to GCP
 
 on:
   workflow_dispatch:
@@ -6,13 +6,13 @@ on:
     branches: [ main ]
     paths:
       - "Terraform/**"
-      - '.github/workflows/deploy-infra.yml'
+      - '.github/workflows/deploy-shared-services.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest
     defaults:
           run:
-            working-directory: Terraform/
+            working-directory: Terraform/shared
             shell: bash
 
     steps:

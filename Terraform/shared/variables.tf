@@ -16,6 +16,12 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "repo_url" {
+  description = "Url for repo artifact"
+  type= string
+  default = "us-east1-docker.pkg.dev/konecta-task-467513/erp"
+}
+
 variable "min_instances" {
   description = "Minimum instances for Cloud Run services"
   type        = number
@@ -34,11 +40,11 @@ variable "service_account_email" {
   default     = "terraform-account@konecta-task-467513.iam.gserviceaccount.com"
 }
 
-variable "vpc_connector" {
-  description = "VPC connector for private services"
-  type        = string
-  default     = ""
-}
+# variable "vpc_connector" {
+#   description = "VPC connector for private services"
+#   type        = string
+#   default     = ""
+# }
 
 variable "vpc_network" {
   description = "VPC network for Cloud SQL"
@@ -55,5 +61,5 @@ variable "consul_host" {
 variable "image_repository_name" {
   description = "Name of the image repository"
   type        = string
-  default     = "konecta-erp"
+  default     = "erp"
 }

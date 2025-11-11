@@ -70,3 +70,9 @@ variable "secrets" {
   type        = map(string)
   default     = {}
 }
+
+variable "custom_args" {
+  description = "args passed to container on entrypoint"
+  type = list(string)
+  default = []
+}

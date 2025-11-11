@@ -41,6 +41,8 @@ resource "google_cloud_run_v2_service" "cloud_run_module" {
           }
         }
       }
+      
+      args = var.custom_args
 
       startup_probe {
         initial_delay_seconds = 30
@@ -81,6 +83,8 @@ resource "google_cloud_run_v2_service" "cloud_run_module" {
   }
 
   ingress = var.ingress
+
+
 }
 
 resource "google_cloud_run_service_iam_member" "public_access" {
