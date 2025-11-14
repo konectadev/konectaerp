@@ -7,6 +7,6 @@ terraform {
   }
   backend "gcs" {
     bucket = "konecta-erp"
-    prefix = "services/authentication-service"
+    prefix = "services/finance-service"
   }
 }

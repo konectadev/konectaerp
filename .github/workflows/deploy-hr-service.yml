@@ -1,4 +1,3 @@
-# Deploy HR Service to GCP Cloud Run
 name: Deploy HR Service
 on:
   workflow_dispatch:
@@ -8,6 +7,9 @@ on:
       - 'konecta_erp/backend/HrService/**'
       - '.github/workflows/deploy-hr-service.yml'
 
+env:
+  IMAGE_NAME: us-east1-docker.pkg.dev/konecta-task-467513/erp/hr-service
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -15,31 +17,23 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      
-      - name: Auth to Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-      
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-east1-docker.pkg.dev
-      
-      - name: Build Docker Image
-        run: |
+      - run: gcloud auth configure-docker us-east1-docker.pkg.dev
+      - run: |
           cd konecta_erp
-          docker build -f backend/HrService/Dockerfile -t ${{secrets.REPO_URL}}hr-service:${{github.sha}} .
-      
-      - name: Push Image
-        run: docker push ${{secrets.REPO_URL}}hr-service:${{github.sha}}
-      
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy hr-service \
-            --image=${{secrets.REPO_URL}}hr-service:${{github.sha}} \
-            --region=us-east1
-
+          docker build -f backend/HrService/Dockerfile -t $IMAGE_NAME:${{github.sha}} .
+      - run: docker push $IMAGE_NAME:${{github.sha}}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.6
+      - run: terraform init
+        working-directory: ./Terraform/services/hr
+      - run: terraform plan -var="image=${{ github.sha }}"
+        working-directory: ./Terraform/services/hr
+      - if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -var="image=${{ github.sha }}"
+        working-directory: ./Terraform/services/hr

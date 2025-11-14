@@ -6,13 +6,13 @@ data "terraform_remote_state" "shared" {
   }
 }
 
-module "authentication_service" {
+module "rabbitmq" {
   source = "../../modules/cloud_run"
 
-  service_name = "authentication-service"
+  service_name = "rabbitmq"
   region       = data.terraform_remote_state.shared.outputs.region
-  image        = "${var.repo_url}/authentication-service:${var.image_tag}"
-  port         = 7280
+  image        = "${var.repo_url}/rabbitmq:${var.image_tag}"
+  port         = 15672
   service_account_email = data.terraform_remote_state.shared.outputs.service_account_email
   vpc_connector = data.terraform_remote_state.shared.outputs.vpc_connector_name
 
@@ -23,9 +23,8 @@ module "authentication_service" {
 
   environment_variables = {
     ASPNETCORE_ENVIRONMENT = "Production"
-    SERVICE_NAME = "authentication-service"
+    SERVICE_NAME = "rabbitmq"
     SPRING__CLOUD__CONFIG__URI = "http://config-server:8888"
     SPRING__CLOUD__CONFIG__FAILFAST = "false"
-    ASPNETCORE_URLS = "http://+:7280"
   }
 }

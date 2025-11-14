@@ -1,30 +1,14 @@
-# This pipeline destroy all infra made by terraform in GCP
-
-name: Destroy Infra
+name: Destroy Terraform Services
 on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  destroy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      
-      - name: Auth to Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
         with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-      - name: Run Terraform Destroy
-        run:
-          for d in infra/services/*; do
-            (cd "$d" && terraform destroy -auto-approve)
-          done
-          (cd infra/shared && terraform destroy -auto-approve)
+          terraform_version: 1.9.6
+      - run: terraform destroy -auto-approve
+        working-directory: ./Terraform

@@ -1,67 +1,34 @@
-resource "google_cloud_run_v2_service" "cloud_run_module" {
+resource "google_cloud_run_v2_service" "service" {
   name     = var.service_name
   location = var.region
-  deletion_protection = false
+
+  ingress = var.ingress
+  launch_stage = "GA"
 
   template {
     containers {
       image = var.image
-      
+
       ports {
         container_port = var.port
       }
 
       resources {
-        cpu_idle = var.by_req
         limits = {
-          cpu    = "1"
-          memory = "512Mi"
+          cpu    = var.cpu_limit
+          memory = var.memory_limit
         }
       }
 
-      # Dynamic environment variables
-      dynamic "env" {
-        for_each = var.environment_variables
-        content {
-          name  = env.key
-          value = env.value
+       dynamic "env" {
+      for_each = var.environment_variables
+      content {
+        name  = env.key
+        value = env.value
         }
       }
 
-      # Dynamic secrets
-      dynamic "env" {
-        for_each = var.secrets
-        content {
-          name = env.key
-          value_source {
-            secret_key_ref {
-              secret  = env.value
-              version = "latest"
-            }
-          }
-        }
-      }
-      
       args = var.custom_args
-
-      startup_probe {
-        initial_delay_seconds = 30
-        timeout_seconds       = 240
-        period_seconds        = 10
-        failure_threshold     = 3
-        tcp_socket {
-          port = var.port
-        }
-      }
-
-      liveness_probe {
-        http_get {
-          path = "/health"
-          port = var.port
-        }
-        initial_delay_seconds = 30
-        period_seconds        = 10
-      }
     }
 
     scaling {
@@ -69,36 +36,28 @@ resource "google_cloud_run_v2_service" "cloud_run_module" {
       max_instance_count = var.max_instances
     }
 
+    service_account = var.service_account_email
+
     vpc_access {
       connector = var.vpc_connector
-      egress    = "ALL_TRAFFIC"
+      egress    = var.vpc_egress
     }
-
-    service_account = var.service_account_email
   }
 
   traffic {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
-
-  ingress = var.ingress
-
-
 }
 
 resource "google_cloud_run_service_iam_member" "public_access" {
   count    = var.auth == "public" ? 1 : 0
-  service  = google_cloud_run_v2_service.cloud_run_module.name
+  service  = google_cloud_run_v2_service.service.name
   location = var.region
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
 
-resource "google_cloud_run_service_iam_member" "internal_access" {
-  count    = var.auth == "private" ? 1 : 0
-  service  = google_cloud_run_v2_service.cloud_run_module.name
-  location = var.region
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:${var.service_account_email}"
+output "uri" {
+  value = google_cloud_run_v2_service.service.uri
 }
