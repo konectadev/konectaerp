@@ -1,40 +1,43 @@
 name: Deploy Shared Services
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths: 
+    branches: [ main ]
+    paths:
       - 'konecta_erp/backend/SharedContracts/**'
       - '.github/workflows/deploy-shared-services.yml'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/setup-gcloud@v2
-      - uses: google-github-actions/auth@v2
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-      # - run: gcloud auth configure-docker us-east1-docker.pkg.dev
-      
-      # - run: |
-      #     cd konecta_erp
-      #     docker build -f backend/SharedContracts/Dockerfile -t $IMAGE_NAME:${{github.sha}} .
-      
-      # - run: docker push $IMAGE_NAME:${{github.sha}}
-      
-      - uses: hashicorp/setup-terraform@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.6
-      - run: terraform init
+
+      - name: Terraform Init
+        run: terraform init
         working-directory: ./Terraform/shared
-      
-      # - run: terraform plan"
-      #   working-directory: ./Terraform/shared
-      
-      - if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve"
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./Terraform/shared
+
+      - name: Terraform Apply (Main Branch Only)
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
         working-directory: ./Terraform/shared
