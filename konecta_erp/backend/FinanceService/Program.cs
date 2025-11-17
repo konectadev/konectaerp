@@ -4,8 +4,12 @@ using FinanceService.Messaging;
 using FinanceService.Profiles;
 using FinanceService.Repositories;
 using FinanceService.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharedContracts.Authorization;
+using SharedContracts.Security;
 using SharedContracts.ServiceDiscovery;
 using Steeltoe.Extensions.Configuration.ConfigServer;
 
@@ -22,6 +26,30 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Konecta ERP - Finance Service",
         Version = "v1",
         Description = "Finance domain APIs covering invoicing, expenses, budgets, payroll, and employee compensation management."
+    });
+    
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -40,6 +68,15 @@ builder.Services.AddScoped<IEmployeeCompensationService, EmployeeCompensationSer
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
 builder.Services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
 builder.Services.AddHostedService<CompensationEventsConsumer>();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+});
+builder.Services.AddPermissionPolicies();
 
 builder.Services.AddCors(options =>
 {
@@ -75,6 +112,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
@@ -89,7 +128,7 @@ app.MapGet("/system/health", () =>
         status = "UP",
         service = serviceName,
         timestamp = DateTimeOffset.UtcNow
-    }));
+    })).AllowAnonymous();
 
 app.MapGet("/system/fallback", () =>
     Results.Json(new
@@ -98,6 +137,6 @@ app.MapGet("/system/fallback", () =>
         service = serviceName,
         message = "Serving fallback response from Finance Service.",
         timestamp = DateTimeOffset.UtcNow
-    }, statusCode: StatusCodes.Status503ServiceUnavailable));
+    }, statusCode: StatusCodes.Status503ServiceUnavailable)).AllowAnonymous();
 
 app.Run();

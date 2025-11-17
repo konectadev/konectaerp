@@ -1,5 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharedContracts.Authorization;
+using SharedContracts.Configuration;
+using SharedContracts.Security;
 using SharedContracts.ServiceDiscovery;
 using Steeltoe.Extensions.Configuration.ConfigServer;
 using UserManagementService.BackgroundServices;
@@ -21,6 +26,30 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Konecta ERP - User Management Service",
         Version = "v1",
         Description = "Provides user directory, role management, and synchronization endpoints."
+    });
+    
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -47,6 +76,22 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
 builder.Services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
 builder.Services.AddHostedService<UserEventsConsumer>();
+builder.Services.AddHostedService<AuthorizationSeederHostedService>();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.Configure<ServiceAuthOptions>(builder.Configuration.GetSection(ServiceAuthOptions.SectionName));
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(RoleConstants.SystemAdmin);
+    });
+});
+builder.Services.AddPermissionPolicies();
 
 var serviceConfig = builder.Configuration.GetSection("ServiceConfig");
 var serviceName = serviceConfig.GetValue<string>("ServiceName") ?? builder.Environment.ApplicationName;
@@ -69,6 +114,8 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/system/health", () =>
@@ -77,7 +124,7 @@ app.MapGet("/system/health", () =>
         status = "UP",
         service = serviceName,
         timestamp = DateTimeOffset.UtcNow
-    }));
+    })).AllowAnonymous();
 
 app.MapGet("/system/fallback", () =>
     Results.Json(new
@@ -86,7 +133,7 @@ app.MapGet("/system/fallback", () =>
         service = serviceName,
         message = "Serving fallback response from User Management Service.",
         timestamp = DateTimeOffset.UtcNow
-    }, statusCode: StatusCodes.Status503ServiceUnavailable));
+    }, statusCode: StatusCodes.Status503ServiceUnavailable)).AllowAnonymous();
 
 using (var scope = app.Services.CreateScope())
 {

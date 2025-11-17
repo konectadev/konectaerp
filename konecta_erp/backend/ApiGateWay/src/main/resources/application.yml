@@ -34,16 +34,10 @@ spring:
           predicates:
             - Path=/auth/**
           filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
+            - name: RewritePath
               args:
-                name: authenticationServiceCircuitBreaker
-                fallbackUri: forward:/fallback/authentication-service
-        - id: authentication-service-direct
-          uri: ${upstreams.authentication}
-          predicates:
-            - Path=/api/Auth/**,/api/auth/**
-          filters:
+                regexp: ^/auth/(?<segment>.*)
+                replacement: /api/auth/${segment}
             - name: CircuitBreaker
               args:
                 name: authenticationServiceCircuitBreaker
@@ -53,7 +47,10 @@ spring:
           predicates:
             - Path=/hr/**
           filters:
-            - StripPrefix=1
+            - name: RewritePath
+              args:
+                regexp: ^/hr/(?<remaining>.*)
+                replacement: /${remaining}
             - name: CircuitBreaker
               args:
                 name: hrServiceCircuitBreaker
@@ -61,7 +58,7 @@ spring:
         - id: hr-service-direct
           uri: ${upstreams.hr}
           predicates:
-            - Path=/api/Attendance/**,/api/attendance/**,/api/Department/**,/api/department/**,/api/Employee/**,/api/employee/**,/api/HrSummary/**,/api/hrsummary/**,/api/Interviews/**,/api/interviews/**,/api/JobApplications/**,/api/jobapplications/**,/api/JobOpenings/**,/api/jobopenings/**,/api/LeaveRequests/**,/api/leaverequests/**,/api/ResignationRequests/**,/api/resignationrequests/**
+            - Path=/api/Attendance/**,/api/attendance/**,/api/Department/**,/api/department/**,/api/Employee/**,/api/employee/**,/api/Employees/**,/api/employees/**,/api/HrSummary/**,/api/hrsummary/**,/api/Interviews/**,/api/interviews/**,/api/JobApplications/**,/api/jobapplications/**,/api/JobOpenings/**,/api/jobopenings/**,/api/LeaveRequests/**,/api/leaverequests/**,/api/ResignationRequests/**,/api/resignationrequests/**
           filters:
             - name: CircuitBreaker
               args:
@@ -80,7 +77,7 @@ spring:
         - id: user-management-service-direct
           uri: ${upstreams.userManagement}
           predicates:
-            - Path=/api/Users/**,/api/users/**
+            - Path=/api/Users/**,/api/users/**,/api/Roles/**,/api/roles/**,/api/Permissions/**,/api/permissions/**
           filters:
             - name: CircuitBreaker
               args:
@@ -143,14 +140,61 @@ spring:
               args:
                 name: reportingServiceCircuitBreaker
                 fallbackUri: forward:/fallback/reporting-service
+        # Swagger UI routes - Authentication Service
+        - id: swagger-auth-ui
+          uri: ${upstreams.authentication}
+          predicates:
+            - Path=/swagger/auth/**
+          filters:
+            - RewritePath=/swagger/auth(?<segment>/?.*), /swagger${segment}
+        # Swagger UI routes - HR Service
+        - id: swagger-hr-ui
+          uri: ${upstreams.hr}
+          predicates:
+            - Path=/swagger/hr/**
+          filters:
+            - RewritePath=/swagger/hr(?<segment>/?.*), /swagger${segment}
+        # Swagger UI routes - User Management Service
+        - id: swagger-users-ui
+          uri: ${upstreams.userManagement}
+          predicates:
+            - Path=/swagger/users/**
+          filters:
+            - RewritePath=/swagger/users(?<segment>/?.*), /swagger${segment}
+        # Swagger UI routes - Finance Service
+        - id: swagger-finance-ui
+          uri: ${upstreams.finance}
+          predicates:
+            - Path=/swagger/finance/**
+          filters:
+            - RewritePath=/swagger/finance(?<segment>/?.*), /swagger${segment}
+        # Swagger UI routes - Inventory Service
+        - id: swagger-inventory-ui
+          uri: ${upstreams.inventory}
+          predicates:
+            - Path=/swagger/inventory/**
+          filters:
+            - RewritePath=/swagger/inventory(?<segment>/?.*), /swagger${segment}
+        # Swagger UI routes - Reporting Service
+        - id: swagger-reporting-ui
+          uri: ${upstreams.reporting}
+          predicates:
+            - Path=/swagger/reporting/**
+          filters:
+            - RewritePath=/swagger/reporting(?<segment>/?.*), /swagger${segment}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_JWKS_URI:http://localhost:7280/.well-known/jwks.json}
 
 upstreams:
-  authentication: "${AUTH_SERVICE_URI:https://authentication-service.service.consul:7280}"
-  hr: "${HR_SERVICE_URI:http://hr-service.service.consul:5005}"
-  userManagement: "${USER_MANAGEMENT_SERVICE_URI:http://user-management-service.service.consul:5078}"
-  inventory: "${INVENTORY_SERVICE_URI:http://inventory-service.service.consul:5020}"
-  finance: "${FINANCE_SERVICE_URI:http://finance-service.service.consul:5003}"
-  reporting: "${REPORTING_SERVICE_URI:http://reporting-service.service.consul:8085}"
+  authentication: "${AUTH_SERVICE_URI:http://localhost:7280}"
+  hr: "${HR_SERVICE_URI:http://localhost:5005}"
+  userManagement: "${USER_MANAGEMENT_SERVICE_URI:http://localhost:5078}"
+  inventory: "${INVENTORY_SERVICE_URI:http://localhost:5020}"
+  finance: "${FINANCE_SERVICE_URI:http://localhost:5003}"
+  reporting: "${REPORTING_SERVICE_URI:http://localhost:8085}"
 
 management:
   server:
@@ -158,10 +202,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,gateway
   endpoint:
     health:
       show-details: always
+    gateway:
+      enabled: true
   health:
     circuitbreakers:
       enabled: true

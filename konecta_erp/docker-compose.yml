@@ -1,31 +1,35 @@
-version: "3.9"
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_PID: fathy
-      SA_PASSWORD: "2028"
+      MSSQL_PID: Developer
+      SA_PASSWORD: 'pa55w0rd!'
     ports:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     networks:
       - erp-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'pa55w0rd!' -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
 
   sqlserver-seed:
     image: mcr.microsoft.com/mssql-tools
     container_name: sqlserver-seed
     depends_on:
       sqlserver:
-        condition: service_started
+        condition: service_healthy
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"
+      SA_PASSWORD: 'pa55w0rd!'
     volumes:
       - ./docker/sqlserver:/scripts:ro
-    entrypoint: ["/bin/bash", "-c", "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P \"$SA_PASSWORD\" -d master -i /scripts/create-databases.sql"]
+    entrypoint: ["/bin/bash", "-c", "counter=0; while [ $$counter -lt 30 ]; do if /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P \"$$SA_PASSWORD\" -C -Q \"SELECT 1\" -b -h -1 > /dev/null 2>&1; then echo 'SQL Server is ready!'; /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P \"$$SA_PASSWORD\" -C -d master -i /scripts/create-databases.sql; exit 0; fi; counter=$$((counter+1)); echo \"Waiting for SQL Server... (attempt $$counter/30)\"; sleep 2; done; echo 'SQL Server connection timeout!'; exit 1"]
     restart: "no"
     networks:
       - erp-network
@@ -69,6 +73,7 @@ services:
       SERVER_PORT: 8888
       CONSUL_HOST: consul
       CONSUL_PORT: 8500
+      CONSUL_ENDPOINT: http://consul:8500
     depends_on:
       - consul
     ports:
@@ -89,6 +94,7 @@ services:
       CONSUL_PORT: 8500
       CONSUL_SERVICE_HOST: api-gateway
       AUTH_SERVICE_URI: http://authentication-service:7280
+      AUTH_JWKS_URI: http://authentication-service:7280/.well-known/jwks.json
       HR_SERVICE_URI: http://hr-service:5005
       USER_MANAGEMENT_SERVICE_URI: http://user-management-service:5078
       INVENTORY_SERVICE_URI: http://inventory-service:5020

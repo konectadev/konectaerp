@@ -5,7 +5,7 @@ namespace AuthenticationService.Services
 {
     public interface IJwtService
     {
-        string GenerateToken(ApplicationUser user);
+        TokenResult GenerateToken(ApplicationUser user, IEnumerable<string> roles, IEnumerable<string> permissions);
         ClaimsPrincipal? ValidateToken(string token);
 
     }
