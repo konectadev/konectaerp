@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "konecta-erp"
+    bucket = "konecta-erp-system"
     prefix = "shared"
   }
 }
