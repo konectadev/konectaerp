@@ -6,10 +6,6 @@ on:
     paths: 
       - 'konecta_erp/backend/SharedContracts/**'
       - '.github/workflows/deploy-shared-services.yml'
-
-env:
-  IMAGE_NAME: ${{env.REPO_URL}}shared-services
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
