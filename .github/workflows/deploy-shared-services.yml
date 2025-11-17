@@ -8,7 +8,7 @@ on:
       - '.github/workflows/deploy-shared-services.yml'
 
 env:
-  IMAGE_NAME: us-east1-docker.pkg.dev/konecta-task-467513/erp/shared-services
+  IMAGE_NAME: ${{env.REPO_URL}}shared-services
 
 jobs:
   deploy:
@@ -23,17 +23,22 @@ jobs:
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - run: gcloud auth configure-docker us-east1-docker.pkg.dev
+      
       - run: |
           cd konecta_erp
           docker build -f backend/SharedContracts/Dockerfile -t $IMAGE_NAME:${{github.sha}} .
+      
       - run: docker push $IMAGE_NAME:${{github.sha}}
+      
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.6
       - run: terraform init
-        working-directory: ./Terraform/services/shared
-      - run: terraform plan -var="image=${{ github.sha }}"
-        working-directory: ./Terraform/services/shared
+        working-directory: ./Terraform/shared
+      
+      # - run: terraform plan"
+      #   working-directory: ./Terraform/shared
+      
       - if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve -var="image=${{ github.sha }}"
-        working-directory: ./Terraform/services/shared
+        run: terraform apply -auto-approve"
+        working-directory: ./Terraform/shared

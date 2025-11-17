@@ -8,7 +8,7 @@ on:
       - '.github/workflows/deploy-inventory-service.yml'
 
 env:
-  IMAGE_NAME: us-east1-docker.pkg.dev/konecta-task-467513/erp/inventory-service
+  IMAGE_NAME: ${{env.REPO_URL}}inventory-service
 
 jobs:
   deploy:

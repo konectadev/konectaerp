@@ -8,7 +8,7 @@ on:
       - '.github/workflows/deploy-hr-service.yml'
 
 env:
-  IMAGE_NAME: us-east1-docker.pkg.dev/konecta-task-467513/erp/hr-service
+  IMAGE_NAME: ${{env.REPO_URL}}hr-service
 
 jobs:
   deploy:

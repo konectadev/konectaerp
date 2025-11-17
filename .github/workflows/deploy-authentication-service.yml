@@ -32,15 +32,15 @@ jobs:
       - name: Build Docker Image
         run: |
           cd konecta_erp
-          docker build -f backend/AuthenticationService/Dockerfile -t us-east1-docker.pkg.dev/konecta-task-467513/erp/authentication-service:${{github.sha}} .
+          docker build -f backend/AuthenticationService/Dockerfile -t ${{env.REPO_URL}}authentication-service:${{github.sha}} .
       
       - name: Push Image
-        run: docker push us-east1-docker.pkg.dev/konecta-task-467513/erp/authentication-service:${{github.sha}}
+        run: docker push ${{env.REPO_URL}}authentication-service:${{github.sha}}
       
       # - name: Deploy to Cloud Run
       #   run: |
       #     gcloud run deploy authentication-service \
-      #       --image=us-east1-docker.pkg.dev/konecta-task-467513/erp/authentication-service:${{github.sha}} \
+      #       --image=${{env.REPO_URL}}authentication-service:${{github.sha}} \
       #       --region=us-east1
 
        # 3️⃣ Terraform Init (service-specific)
