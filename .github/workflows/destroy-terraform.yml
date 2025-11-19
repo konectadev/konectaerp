@@ -10,5 +10,6 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.6
+
       - run: terraform destroy -auto-approve
-        working-directory: ./Terraform
+        working-directory: ./Terraform/shared
