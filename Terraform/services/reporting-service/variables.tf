@@ -1,6 +1,6 @@
 variable "repo_url" {
   type    = string
-  default = "us-east1-docker.pkg.dev/konecta-task-467513/erp"
+  default = ""
 }
 
 variable "image_tag" {

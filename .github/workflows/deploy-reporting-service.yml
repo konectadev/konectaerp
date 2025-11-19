@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: 
-      - 'konecta_erp/backend/ReportingService/**'
-      - '.github/workflows/deploy-reporting-service.yml'
+    paths:
+      - "konecta_erp/backend/ReportingService/**"
+      - ".github/workflows/deploy-reporting-service.yml"
 
 env:
   IMAGE_NAME: ${{env.REPO_URL}}reporting-service
@@ -24,16 +24,16 @@ jobs:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - run: gcloud auth configure-docker us-east1-docker.pkg.dev
       - run: |
-          cd konecta_erp
-          docker build -f backend/ReportingService/Dockerfile -t $IMAGE_NAME:${{github.sha}} .
+          cd konecta_erp/backend/ReportingService/
+          docker build -f Dockerfile -t $IMAGE_NAME:${{github.sha}} .
       - run: docker push $IMAGE_NAME:${{github.sha}}
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.6
       - run: terraform init
         working-directory: ./Terraform/services/reporting
-      - run: terraform plan -var="image=${{ github.sha }}"
+      - run: terraform plan -var="image=${{ env.IMAGE_NAME }}:${{ github.sha }}" -var="project_id=${{secrets.PROJECT_ID}}"
         working-directory: ./Terraform/services/reporting
       - if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve -var="image=${{ github.sha }}"
+        run: terraform apply -auto-approve -var="image=${{ env.IMAGE_NAME }}:${{ github.sha }}" -var="project_id=${{secrets.PROJECT_ID}}"
         working-directory: ./Terraform/services/reporting

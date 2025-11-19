@@ -6,8 +6,8 @@ spring:
     name: reporting-service
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
+      host: ${CONSUL_URI}
+      port: 8500
       discovery:
         register: ${CONSUL_REGISTER:true}
         service-name: ${spring.application.name}
@@ -26,11 +26,11 @@ spring:
 
 services:
   finance:
-    url: ${FINANCE_SERVICE_URI:http://localhost:5003}
+    url: ${FINANCE_SERVICE_URI}
   hr:
-    url: ${HR_SERVICE_URI:http://localhost:5005}
+    url: ${HR_SERVICE_URI}
   inventory:
-    url: ${INVENTORY_SERVICE_URI:http://localhost:5020}
+    url: ${INVENTORY_SERVICE_URI}
 
 feign:
   client:

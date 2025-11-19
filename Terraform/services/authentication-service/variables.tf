@@ -1,6 +1,6 @@
 variable "repo_url" {
   type    = string
-  default = "us-east1-docker.pkg.dev/konecta-task-467513/erp"
+  default = ""
 }
 
 variable "image_tag" {
@@ -10,7 +10,7 @@ variable "image_tag" {
 
 variable "min_instances" {
   type    = number
-  default = 0
+  default = 1
 }
 
 variable "max_instances" {

@@ -2,6 +2,11 @@ resource "google_sql_database_instance" "sqlserver" {
   name             = "erp-sqlserver"
   database_version = "SQLSERVER_2022_STANDARD"
   region           = var.region
+  root_password = "pa55w0rd"
+
+   depends_on = [
+    google_service_networking_connection.private_vpc_connection
+  ]
 
   settings {
     tier = "db-custom-1-3840"

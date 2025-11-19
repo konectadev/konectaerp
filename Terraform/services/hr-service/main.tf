@@ -1,31 +1,40 @@
 data "terraform_remote_state" "shared" {
   backend = "gcs"
   config = {
-    bucket = "konecta-erp"
+    bucket = "konecta-erp-system"
     prefix = "shared"
+  }
+}
+
+data "terraform_remote_state" "config-server" {
+  backend = "gcs"
+  config = {
+    bucket = "konecta-erp-system"
+    prefix = "services/config-server-service"
   }
 }
 
 module "hr_service" {
   source = "../../modules/cloud_run"
 
-  service_name = "hr-service"
-  region       = data.terraform_remote_state.shared.outputs.region
-  image        = "${var.repo_url}/hr-service:${var.image_tag}"
-  port         = 5005
+  service_name          = "hr-service"
+  region                = data.terraform_remote_state.shared.outputs.region
+  project_id            = data.terraform_remote_state.shared.outputs.project_id
+  image                 = "${var.repo_url}/hr-service:${var.image_tag}"
+  port                  = 5005
   service_account_email = data.terraform_remote_state.shared.outputs.service_account_email
-  vpc_connector = data.terraform_remote_state.shared.outputs.vpc_connector_name
+  vpc_connector         = data.terraform_remote_state.shared.outputs.vpc_connector_name
 
-  auth = "private"
+  auth          = "private"
   min_instances = var.min_instances
   max_instances = var.max_instances
-  ingress = "INGRESS_TRAFFIC_INTERNAL_ONLY"
+  ingress       = "INGRESS_TRAFFIC_INTERNAL_ONLY"
 
   environment_variables = {
-    ASPNETCORE_ENVIRONMENT = "Production"
-    SERVICE_NAME = "hr-service"
-    SPRING__CLOUD__CONFIG__URI = "http://config-server:8888"
+    ASPNETCORE_ENVIRONMENT          = "Production"
+    SERVICE_NAME                    = "hr-service"
+    SPRING__CLOUD__CONFIG__URI      = data.terraform_remote_state.config-server.outputs.uri
     SPRING__CLOUD__CONFIG__FAILFAST = "false"
-    SPRING__APPLICATION__NAME = "hr-service"
+    SPRING__APPLICATION__NAME       = "hr-service"
   }
 }

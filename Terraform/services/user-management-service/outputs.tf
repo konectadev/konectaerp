@@ -1,1 +1,1 @@
-output "url" { value = module.user_management_service.uri }
+output "uri" { value = module.user_management_service.uri }

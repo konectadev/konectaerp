@@ -1,5 +1,5 @@
 ConnectionStrings:
-  DefaultConnection: Server=sqlserver,1433;Database=Konecta_Auth;User Id=sa;Password=pa55w0rd!;TrustServerCertificate=True;
+  DefaultConnection: Server=${DB_HOST},1433;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True;
 
 RabbitMq:
   HostName: rabbitmq
@@ -26,8 +26,6 @@ Email:
   UseSsl: false
   UserName: ""
   Password: ""
-
-
 
 JwtSettings:
   Issuer: KonectaERP
@@ -91,10 +89,9 @@ JwtSettings:
 
 ServiceAuth:
   SharedSecret: KonectaSharedSecret!
-  UserManagementBaseUrl: http://user-management-service:5078
-
+  UserManagementBaseUrl: ${USER_MANAGEMENT_SERVICE_URI}
 Consul:
-  Host: http://consul:8500
+  Host: ${CONSUL_URI}
 
 ServiceConfig:
   ServiceName: authentication-service
@@ -104,5 +101,3 @@ ServiceConfig:
   Scheme: http
   RegisterWithConsul: true
   FailFast: false
-
-

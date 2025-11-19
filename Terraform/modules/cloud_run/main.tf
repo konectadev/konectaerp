@@ -5,6 +5,8 @@ resource "google_cloud_run_v2_service" "service" {
   ingress = var.ingress
   launch_stage = "GA"
 
+  deletion_protection = var.deletion_protection
+
   template {
     containers {
       image = var.image
@@ -39,7 +41,7 @@ resource "google_cloud_run_v2_service" "service" {
     service_account = var.service_account_email
 
     vpc_access {
-      connector = var.vpc_connector
+      connector = "projects/${var.project_id}/locations/${var.region}/connectors/${var.vpc_connector}"
       egress    = var.vpc_egress
     }
   }

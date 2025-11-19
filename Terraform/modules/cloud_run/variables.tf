@@ -8,9 +8,18 @@ variable "image" {
   description = "The container image to deploy"
 }
 
+variable "project_id" {
+  type = string
+}
+
 variable "region" {
   type        = string
   description = "The GCP region"
+}
+
+variable "deletion_protection" {
+  type = bool
+  default = false
 }
 
 variable "port" {

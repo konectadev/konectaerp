@@ -1,5 +1,5 @@
 ConnectionStrings:
-  DefaultConnection: Server=sqlserver,1433;Database=Konecta_Finance;User Id=sa;Password=pa55w0rd!;TrustServerCertificate=True;
+  DefaultConnection: Server=${DB_HOST},1433;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True;
 
 RabbitMq:
   HostName: rabbitmq
@@ -14,7 +14,7 @@ RabbitMq:
   CompensationDeductionsRoutingKey: finance.compensation.deductions
 
 Consul:
-  Host: http://consul:8500
+  Host: ${CONSUL_URI}
 
 JwtSettings:
   Issuer: KonectaERP

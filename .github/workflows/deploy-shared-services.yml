@@ -34,11 +34,11 @@ jobs:
         working-directory: ./Terraform/shared
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -var="project_id=erp-system-478020"
+        run: terraform plan -out=tfplan -var="project_id=${{secrets.PROJECT_ID}}"
         working-directory: ./Terraform/shared
 
       - name: Terraform Apply (Main Branch Only)
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan -var="project_id=erp-system-478020"
+        run: terraform apply -auto-approve -var="project_id=${{secrets.PROJECT_ID}}"
         working-directory: ./Terraform/shared
 
