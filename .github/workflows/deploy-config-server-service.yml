@@ -55,8 +55,7 @@ jobs:
         working-directory: ./Terraform/services/config-server-service
         run: |
           terraform plan \
-            -var="image=${{ env.IMAGE_NAME }}:${{ github.sha }}" \
-            -var="project_id=${{ secrets.PROJECT_ID }}"
+            -var="image_tag=${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       # 5️⃣ Terraform Apply
       - name: Terraform Apply
@@ -64,5 +63,4 @@ jobs:
         working-directory: ./Terraform/services/config-server-service
         run: |
           terraform apply -auto-approve \
-            -var="image=${{ env.IMAGE_NAME }}:${{ github.sha }}" \
-            -var="project_id=${{ secrets.PROJECT_ID }}"
+            -var="image_tag=${{ env.IMAGE_NAME }}:${{ github.sha }}"
