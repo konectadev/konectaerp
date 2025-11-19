@@ -9,7 +9,7 @@ on:
       - ".github/workflows/deploy-config-server-service.yml"
 
 env:
-  IMAGE_NAME: "${{secrets.REPO_URL}}config-server-service"
+  IMAGE_NAME: "${{secrets.REPO_URL}}/config-server-service"
 
 jobs:
   deploy:
@@ -35,10 +35,10 @@ jobs:
       - name: Build Docker Image
         working-directory: ./konecta_erp
         run: |
-          docker build -f backend/config/Dockerfile -t ${{secrets.REPO_URL}}config-server-service:${{github.sha}} ./backend/config
+          docker build -f backend/config/Dockerfile -t ${{env.IMAGE_NAME}}:${{github.sha}} ./backend/config
 
       - name: Push Image
-        run: docker push ${{secrets.REPO_URL}}config-server-service:${{github.sha}}
+        run: docker push ${{env.IMAGE_NAME}}:${{github.sha}}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -46,23 +46,23 @@ jobs:
           terraform_version: 1.9.6
 
       - name: Terraform Init
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/config-server-service
         run: |
           terraform init
       # 4️⃣ Terraform Plan
       - name: Terraform Plan
         id: plan
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/config-server-service
         run: |
           terraform plan \
-            -var="image=${{ secrets.REPO_URL }}config-server-service:${{github.sha}}" \ 
+            -var="image=${{ env.IMAGE_NAME }}:${GITHUB_SHA}" \ 
             -var="project_id=${{ secrets.PROJECT_ID }}"
 
       # 5️⃣ Terraform Apply
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/config-server-service
         run: |
           terraform apply -auto-approve \
-            -var="image=${{ secrets.REPO_URL }}config-server-service:${{github.sha}}" \
+            -var="image=${{ env.IMAGE_NAME }}:${GITHUB_SHA}" \
             -var="project_id=${{ secrets.PROJECT_ID }}"

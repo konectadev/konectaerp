@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-api-gateway.yml"
 
 env:
-  IMAGE_NAME: "${{secrets.REPO_URL}}api-gateway"
+  IMAGE_NAME: "${{secrets.REPO_URL}}/api-gateway"
 
 jobs:
   deploy:

@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-user-management-service.yml"
 
 env:
-  IMAGE_NAME: ${{env.REPO_URL}}user-management-service
+  IMAGE_NAME: ${{env.REPO_URL}}/user-management-service
 
 jobs:
   deploy:

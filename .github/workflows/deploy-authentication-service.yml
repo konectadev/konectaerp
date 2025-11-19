@@ -9,7 +9,7 @@ on:
       - ".github/workflows/deploy-authentication-service.yml"
 
 env:
-  IMAGE_NAME: "${{secrets.REPO_URL}}authentication-service"
+  IMAGE_NAME: "${{secrets.REPO_URL}}/authentication-service"
 
 jobs:
   deploy:

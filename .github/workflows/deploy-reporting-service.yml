@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-reporting-service.yml"
 
 env:
-  IMAGE_NAME: ${{env.REPO_URL}}reporting-service
+  IMAGE_NAME: ${{env.REPO_URL}}/reporting-service
 
 jobs:
   deploy:

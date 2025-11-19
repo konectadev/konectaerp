@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-frontend.yml"
 
 env:
-  IMAGE_NAME: ${{env.REPO_URL}}frontend
+  IMAGE_NAME: ${{env.REPO_URL}}/frontend
 
 jobs:
   deploy:
