@@ -47,13 +47,13 @@ jobs:
           terraform_version: 1.9.6
 
       - name: Terraform Init
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/authentication-service
         run: |
           terraform init
       # 4️⃣ Terraform Plan
       - name: Terraform Plan
         id: plan
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/authentication-service
         run: |
           terraform plan \
             -var="image=${{ env.IMAGE_NAME }}:${{github.sha}}" \
@@ -62,7 +62,7 @@ jobs:
       # 5️⃣ Terraform Apply
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        working-directory: ./Terraform/services/auth
+        working-directory: ./Terraform/services/authentication-service
         run: |
           terraform apply -auto-approve \
             -var="image=${{ env.IMAGE_NAME }}:${{github.sha}}" \
