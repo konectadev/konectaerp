@@ -35,7 +35,7 @@ jobs:
       - name: Build Docker Image
         working-directory: ./konecta_erp
         run: |
-          docker build -f backend/config/Dockerfile -t ${{env.IMAGE_NAME}}:${{github.sha}} .
+          docker build -f backend/config/Dockerfile -t ${{env.IMAGE_NAME}}:${{github.sha}} ./backend/config
 
       - name: Push Image
         run: docker push ${{env.IMAGE_NAME}}:${{github.sha}}
